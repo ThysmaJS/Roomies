@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import path from 'node:path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -12,9 +13,11 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': path.resolve(__dirname, './src')
     },
   },
+  // PostCSS est configuré via postcss.config.js
   server: {
     host: '0.0.0.0',  // ➔ c'est ça qui permet d'accéder depuis ton PC
     port: 5173,       // ➔ en cohérence avec ton docker-compose.yml
