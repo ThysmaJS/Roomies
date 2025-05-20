@@ -1,0 +1,59 @@
+# --- GLOBALS ---
+
+# Ignore OS or editor files
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker volumes
+docker-compose.override.yml
+.env.local
+.env.*.local
+.env.docker.local
+
+# --- FRONTEND (VUE) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- BACKEND (SYMFONY) ---
+backend/vendor/
+backend/var/
+backend/.env.local
+backend/.phpunit.result.cache
+backend/public/bundles/
+backend/.DS_Store
+
+# Symfony cache and logs
+backend/var/cache/
+backend/var/log/
+
+# Symfony specific
+backend/.env.dev.local
+backend/.env.test.local
+backend/.env.prod.local
+
+# Doctrine migrations (optionnel si tu veux versionner tes migrations)
+backend/migrations/
+
+# --- WEBSOCKET (Node.js serveur) ---
+websocket/node_modules/
+websocket/package-lock.json
+websocket/dist/
+websocket/.env.local
+
+# --- VS CODE ---
+.vscode/
+.idea/
+
+# --- Git related ---
+*.orig

@@ -35,5 +35,27 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  websocket:
+    image: node:20
+    container_name: websocket_server
+    volumes:
+      - ./websocket:/app
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "3001:3001"
+
 volumes:
   mysql-data:
