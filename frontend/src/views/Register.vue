@@ -1,45 +1,37 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-    <div class="w-full max-w-lg p-8 bg-white rounded-2xl shadow-lg">
-      <h1 class="text-3xl font-bold mb-8 text-center text-indigo-700">
+<div class="flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg p-6 border-2 border-blue-300 rounded-md shadow-lg bg-white">
+      <h1 class="text-3xl text-blue-700 font-extrabold mb-6 uppercase tracking-wide">
         Créer un compte
       </h1>
 
-      <form @submit.prevent="handleRegister" class="space-y-6">
-        <!-- Nom d'utilisateur -->
+      <form @submit.prevent="handleRegister" class="space-y-5 text-sm text-blue-900 font-medium">
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-            Nom d'utilisateur
-          </label>
+          <label for="username" class="block mb-1">Nom d'utilisateur :</label>
           <input
             id="username"
             v-model="form.username"
             required
-            placeholder="Ex: thysma"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="ex: thysma"
+            class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+          <p v-if="error && !form.username" class="text-red-600 text-xs mt-1">{{ error }}</p>
         </div>
 
-        <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-            Adresse e-mail
-          </label>
+          <label for="email" class="block mb-1">Adresse e-mail :</label>
           <input
             id="email"
             type="email"
             v-model="form.email"
             required
-            placeholder="Ex: email@example.com"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="ex: email@example.com"
+            class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
-        <!-- Mot de passe -->
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-            Mot de passe
-          </label>
+          <label for="password" class="block mb-1">Mot de passe :</label>
           <input
             id="password"
             type="password"
@@ -47,23 +39,24 @@
             required
             minlength="6"
             placeholder="Minimum 6 caractères"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
-        <!-- Bouton -->
+        <p v-if="error" class="text-red-600 text-xs">{{ error }}</p>
+        <p v-if="success" class="text-green-600 text-xs">✅ Inscription réussie !</p>
+
         <button
           type="submit"
           :disabled="loading"
-          class="w-full py-3 text-white font-semibold bg-indigo-600 hover:bg-indigo-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full py-2 bg-yellow-400 text-blue-900 font-bold rounded border border-yellow-500 hover:bg-yellow-300 disabled:opacity-50 transition"
         >
           {{ loading ? "Création en cours..." : "S'inscrire" }}
         </button>
 
-        <!-- Messages -->
-        <p v-if="error" class="text-center text-red-600 text-sm mt-2">{{ error }}</p>
-        <p v-if="success" class="text-center text-green-600 text-sm mt-2">
-          ✅ Inscription réussie !
+        <p class="text-sm mt-2">
+          Déjà un compte ?
+          <RouterLink to="/login" class="text-blue-700 underline hover:text-blue-500">Connecte-toi</RouterLink>
         </p>
       </form>
     </div>
@@ -73,13 +66,10 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
-const form = ref({
-  username: '',
-  email: '',
-  password: '',
-})
-
+const router = useRouter()
+const form = ref({ username: '', email: '', password: '' })
 const loading = ref(false)
 const error = ref('')
 const success = ref(false)
@@ -90,20 +80,12 @@ const handleRegister = async () => {
   success.value = false
 
   try {
-    await axios.post('/api/register', form.value, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
+    await axios.post('/api/register', form.value)
     success.value = true
     form.value = { username: '', email: '', password: '' }
+    setTimeout(() => router.push('/login'), 1000)
   } catch (err) {
-    if (err.response?.data?.detail) {
-      error.value = err.response.data.detail
-    } else {
-      error.value = "Erreur lors de l’inscription."
-    }
+    error.value = err.response?.data?.detail || "Erreur lors de l’inscription."
   } finally {
     loading.value = false
   }

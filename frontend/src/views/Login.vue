@@ -1,42 +1,47 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-md">
-        <h1 class="text-2xl font-bold mb-6 text-center text-indigo-700">Connexion</h1>
+<div class="flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg p-6 border-2 border-blue-300 rounded-md shadow-lg bg-white">
+        <h1 class="text-3xl text-blue-700 font-extrabold mb-6 uppercase tracking-wide">
+          Connexion
+        </h1>
   
-        <form @submit.prevent="handleLogin" class="space-y-4">
+        <form @submit.prevent="handleLogin" class="space-y-5 text-sm text-blue-900 font-medium">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <label for="email" class="block mb-1">Adresse e-mail :</label>
             <input
               id="email"
               type="email"
               v-model="form.email"
               required
-              placeholder="ex: alice@example.com"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
   
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+            <label for="password" class="block mb-1">Mot de passe :</label>
             <input
               id="password"
               type="password"
               v-model="form.password"
               required
-              minlength="6"
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
+  
+          <p v-if="error" class="text-red-600 text-xs">{{ error }}</p>
   
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            class="w-full py-2 bg-yellow-400 text-blue-900 font-bold rounded border border-yellow-500 hover:bg-yellow-300 disabled:opacity-50 transition"
           >
-            {{ loading ? 'Connexion...' : 'Se connecter' }}
+            {{ loading ? "Connexion..." : "Se connecter" }}
           </button>
   
-          <p v-if="error" class="text-sm text-red-600 text-center mt-2">{{ error }}</p>
+          <p class="text-sm mt-2">
+            Pas encore de compte ?
+            <RouterLink to="/register" class="text-blue-700 underline hover:text-blue-500">Inscris-toi</RouterLink>
+          </p>
         </form>
       </div>
     </div>
@@ -48,12 +53,7 @@
   import { useRouter } from 'vue-router'
   
   const router = useRouter()
-  
-  const form = ref({
-    email: '',
-    password: ''
-  })
-  
+  const form = ref({ email: '', password: '' })
   const loading = ref(false)
   const error = ref('')
   
@@ -62,17 +62,8 @@
     error.value = ''
   
     try {
-      const response = await axios.post('/api/login', {
-        email: form.value.email,
-        password: form.value.password
-      })
-  
-      const token = response.data.token
-  
-      // Stocke le token en localStorage
-      localStorage.setItem('jwt_token', token)
-  
-      // Redirige vers la page d'accueil (ou autre)
+      const { data } = await axios.post('/api/login', form.value)
+      localStorage.setItem('jwt_token', data.token)
       router.push('/')
     } catch (err) {
       error.value = 'Email ou mot de passe invalide.'
