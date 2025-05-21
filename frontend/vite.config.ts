@@ -16,8 +16,17 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0',  // ➔ c'est ça qui permet d'accéder depuis ton PC
-    port: 5173,       // ➔ en cohérence avec ton docker-compose.yml
-    strictPort: true, // ➔ optionnel : force l'erreur si 5173 est déjà occupé
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+
+    // 👇👇 Ajoute ceci
+    proxy: {
+      '/api': {
+        target: 'http://symfony_backend',
+       changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })
