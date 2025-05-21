@@ -9,11 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
 
 #[UniqueEntity('email', message: 'Cet email est déjà utilisé.')]
 #[ORM\Entity]
 #[ApiResource]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private ?int $id = null;
@@ -57,18 +58,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->id;
     }
-
-    public function getUsername(): string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-        return $this;
-    }
-
     public function getEmail(): string
     {
         return $this->email;
@@ -157,5 +146,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Si tu stockes des données sensibles temporairement, efface-les ici.
+    }
+
+    public static function createFromPayload($email, array $payload): self
+    {
+        $user = new self();
+        $user->email = $email;
+        // Hydrate aussi le username si présent dans le payload
+        if (isset($payload['username'])) {
+            $user->username = $payload['username'];
+        }
+        return $user;
     }
 }
