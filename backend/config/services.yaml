@@ -27,5 +27,11 @@ services:
         autoconfigure: true
         tags: ['doctrine.repository_service']
 
+    App\DataPersister\RoomDataPersister:
+        arguments: [ '@security.helper', '@doctrine.orm.entity_manager' ]
+        tags: [ 'api_platform.data_persister' ]
+        autowire: true
+        autoconfigure: true
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

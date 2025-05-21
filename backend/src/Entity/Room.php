@@ -2,16 +2,23 @@
 namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use App\DataPersister\RoomDataPersister;
+
 
 #[ORM\Entity]
+
 #[ApiResource(
     operations: [
-        new \ApiPlatform\Metadata\Post(security: "is_granted('IS_AUTHENTICATED_FULLY')"),
+        new \ApiPlatform\Metadata\Post(
+            security: "is_granted('IS_AUTHENTICATED_FULLY')",
+            processor: RoomDataPersister::class
+        ),
         new \ApiPlatform\Metadata\Get(),
         new \ApiPlatform\Metadata\GetCollection(),
         new \ApiPlatform\Metadata\Delete(security: "object.getOwner() == user")
     ]
 )]
+
 
 class Room {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
@@ -27,7 +34,8 @@ class Room {
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    private ?User $owner;
+    private ?User $owner = null;
+    
 
     #[ORM\ManyToOne(targetEntity: Game::class)]
     private ?Game $currentGame;
