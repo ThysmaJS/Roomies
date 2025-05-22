@@ -35,7 +35,14 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+
+        # autoriser la lecture des rooms sans authentification
+        - { path: ^/api/rooms/\d+$, methods: [GET], roles: PUBLIC_ACCESS }
+        - { path: ^/api/rooms$, methods: [GET], roles: PUBLIC_ACCESS }
+
+        # règle générale pour tout le reste
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
 
 when@test:
     security:
