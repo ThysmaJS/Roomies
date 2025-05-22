@@ -51,11 +51,14 @@
   import { ref } from 'vue'
   import axios from 'axios'
   import { useRouter } from 'vue-router'
+  import { useAuthStore } from '@/stores/auth'
   
   const router = useRouter()
   const form = ref({ email: '', password: '' })
   const loading = ref(false)
   const error = ref('')
+  
+  const auth = useAuthStore()
   
   const handleLogin = async () => {
     loading.value = true
@@ -63,7 +66,7 @@
   
     try {
       const { data } = await axios.post('/api/login', form.value)
-      localStorage.setItem('jwt_token', data.token)
+      auth.login(data.token) // 🔐 met à jour le store + localStorage
       router.push('/')
     } catch (err) {
       error.value = 'Email ou mot de passe invalide.'
