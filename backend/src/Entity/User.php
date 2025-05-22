@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[UniqueEntity('email', message: 'Cet email est déjà utilisé.')]
 #[ORM\Entity]
@@ -19,9 +20,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private ?int $id = null;
 
+    #[Groups(['room:read'])]
     #[ORM\Column(length: 100)]
     private string $username;
-
+    
+    #[Groups(['room:read'])]
     #[ORM\Column(length: 255, unique: true)]
     private string $email;
 

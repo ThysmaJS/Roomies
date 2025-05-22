@@ -20,3 +20,19 @@ export async function createRoom(token: string, name: string, maxPlayers: number
   const data = await res.json()
   return { ok: res.ok, data }
 }
+
+export async function joinRoom(roomId: number, token: string) {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/room_users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/ld+json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      room: `/api/rooms/${roomId}`,
+    }),
+  })
+
+  const data = await response.json()
+  return { ok: response.ok, data }
+}
