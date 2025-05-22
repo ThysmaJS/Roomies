@@ -127,10 +127,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         return $this;
     }
 
-    public function getOwnedRooms(): Collection
-    {
-        return $this->ownedRooms;
-    }
+/**
+ * @return Collection<int, Room>
+ */
+public function getOwnedRooms(): Collection
+{
+    return $this->ownedRooms;
+}
 
     public function getMessages(): Collection
     {
@@ -161,4 +164,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         }
         return $user;
     }
+
+    public function addOwnedRoom(Room $room): self
+{
+    if (!$this->ownedRooms->contains($room)) {
+        $this->ownedRooms[] = $room;
+        $room->setOwner($this); // lie la relation inverse
+    }
+
+    return $this;
+}
+
+public function removeOwnedRoom(Room $room): self
+{
+    if ($this->ownedRooms->removeElement($room)) {
+        if ($room->getOwner() === $this) {
+            $room->setOwner(null);
+        }
+    }
+
+    return $this;
+}
 }

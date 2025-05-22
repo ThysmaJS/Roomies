@@ -5,6 +5,7 @@
       <template v-if="isAuthenticated">
         <RouterLink to="/rooms" class="hover:underline text-blue-700 font-semibold">🎮 Rooms</RouterLink>
         <button @click="logout" class="hover:underline text-red-600 font-semibold">🚪 Déconnexion</button>
+        <RouterLink to="/my-rooms" class="hover:underline text-blue-700 font-semibold">📁 Mes Rooms</RouterLink>
       </template>
       <template v-else>
         <RouterLink to="/register" class="hover:underline text-blue-700">S'inscrire</RouterLink>

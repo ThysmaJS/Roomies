@@ -36,3 +36,24 @@ export async function joinRoom(roomId: number, token: string) {
   const data = await response.json()
   return { ok: response.ok, data }
 }
+
+export async function fetchMyRooms(token: string) {
+  const res = await fetch(`${API_URL}/my/rooms`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/ld+json',
+    },
+  })
+  const data = await res.json()
+  return data['hydra:member'] || data
+}
+
+export async function deleteRoom(roomId: number, token: string) {
+  const res = await fetch(`${API_URL}/rooms/${roomId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return res.ok
+}

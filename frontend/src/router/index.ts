@@ -4,6 +4,7 @@ import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
 import Rooms from '@/views/Rooms.vue'
 import RoomPage from '@/views/RoomPage.vue'
+import MyRoomsPage from '@/views/MyRoomsPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,7 +35,14 @@ const router = createRouter({
       name: 'RoomPage',
       component: RoomPage,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/my-rooms',
+      name: 'MyRooms',
+      component: MyRoomsPage,
+      meta: { requiresAuth: true }
     }
+    
   ],
 })
 
