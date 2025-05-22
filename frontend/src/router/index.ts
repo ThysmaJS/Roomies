@@ -3,6 +3,7 @@ import Register from '../views/Register.vue'
 import Login from '@/views/Login.vue'
 import Home from '@/views/Home.vue'
 import Rooms from '@/views/Rooms.vue'
+import RoomPage from '@/views/RoomPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,12 @@ const router = createRouter({
       component: Rooms,
       meta: { requiresAuth: true },
     },
+    {
+      path: '/room/:id',
+      name: 'RoomPage',
+      component: RoomPage,
+      meta: { requiresAuth: true }
+    }
   ],
 })
 

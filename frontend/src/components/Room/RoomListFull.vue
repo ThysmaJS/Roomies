@@ -7,9 +7,11 @@
   
       <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" v-else>
         <li v-for="room in rooms" :key="room['@id']">
-          <RoomCard :room="room" />
+          <RoomCard :room="room" @select="selectRoom" />
         </li>
       </ul>
+  
+      <RoomDetailModal v-if="selectedRoom" :room="selectedRoom" @close="selectedRoom = null" />
     </section>
   </template>
   
@@ -17,12 +19,13 @@
   import { onMounted, ref } from 'vue'
   import { fetchRooms } from '@/services/roomService'
   import RoomCard from './RoomCard.vue'
+  import RoomDetailModal from './RoomDetailModal.vue'
   
   const rooms = ref([])
   const loading = ref(true)
   const error = ref('')
+  const selectedRoom = ref(null)
   
-  onMounted(loadRooms)
   defineExpose({ loadRooms })
   
   async function loadRooms() {
@@ -34,6 +37,12 @@
     } finally {
       loading.value = false
     }
+  }
+  
+  onMounted(loadRooms)
+  
+  function selectRoom(room: any) {
+    selectedRoom.value = room
   }
   </script>
   
