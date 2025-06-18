@@ -6,10 +6,12 @@ services:
       context: ./backend
     container_name: symfony_backend
     ports:
-      - "8000:80"
+      - "8000:8000"
     volumes:
       - ./backend:/var/www/html
       - vendor:/var/www/html/vendor
+    working_dir: /var/www/html
+    command: php -d variables_order=EGPCS -S 0.0.0.0:8000 -t public
     depends_on:
       - db
 
