@@ -20,13 +20,13 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
 
-    // 👇👇 Ajoute ceci
-    proxy: {
-      '/api': {
-        target: 'http://symfony_backend',
-       changeOrigin: true,
-        secure: false,
-      },
-    },
+proxy: {
+  '/api': {
+    target: 'http://symfony_backend:8000',
+    changeOrigin: true,
+    secure: false,
+  },
+}
+
   },
 })

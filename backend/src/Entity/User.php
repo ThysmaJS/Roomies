@@ -2,187 +2,96 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-#[UniqueEntity('email', message: 'Cet email est déjà utilisé.')]
-#[ORM\Entity]
-#[ApiResource]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['room:read'])]
+    #[ORM\Column(length: 180)]
+    private ?string $email = null;
+
     #[ORM\Column(length: 100)]
-    private string $username;
-    
-    #[Groups(['room:read'])]
-    #[ORM\Column(length: 255, unique: true)]
-    private string $email;
+    private ?string $username = null;
 
-    #[ORM\Column(length: 255)]
-    private string $password;
+    /**
+     * @var list<string> The user roles
+     */
+    #[ORM\Column]
+    private array $roles = [];
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatarUrl = null;
-
-    #[ORM\Column(type: "integer")]
-    private int $score = 0;
-
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $createdAt;
-
-    #[ORM\ManyToOne(targetEntity: Role::class)]
-    private ?Role $role = null;
-
-    #[ORM\OneToMany(mappedBy: "owner", targetEntity: Room::class)]
-    private Collection $ownedRooms;
-
-    #[ORM\OneToMany(mappedBy: "sender", targetEntity: Message::class)]
-    private Collection $messages;
-
-    public function __construct()
-    {
-        $this->ownedRooms = new ArrayCollection();
-        $this->messages = new ArrayCollection();
-    }
-
-    // Getters & setters
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
-    public function getEmail(): string
+
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(string $email): static
     {
         $this->email = $email;
         return $this;
     }
 
-    public function getPassword(): string
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): static
     {
         $this->password = $password;
         return $this;
     }
 
-    public function getAvatarUrl(): ?string
-    {
-        return $this->avatarUrl;
-    }
-
-    public function setAvatarUrl(?string $avatarUrl): self
-    {
-        $this->avatarUrl = $avatarUrl;
-        return $this;
-    }
-
-    public function getScore(): int
-    {
-        return $this->score;
-    }
-
-    public function setScore(int $score): self
-    {
-        $this->score = $score;
-        return $this;
-    }
-
-    public function getCreatedAt(): \DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getRole(): ?Role
-    {
-        return $this->role;
-    }
-
-    public function setRole(?Role $role): self
-    {
-        $this->role = $role;
-        return $this;
-    }
-
-/**
- * @return Collection<int, Room>
- */
-public function getOwnedRooms(): Collection
-{
-    return $this->ownedRooms;
-}
-
-    public function getMessages(): Collection
-    {
-        return $this->messages;
-    }
-    public function getUserIdentifier(): string
-    {
-        return $this->email;
-    }
-
-    public function getRoles(): array
-    {
-        return ['ROLE_USER'];
-    }
-
     public function eraseCredentials(): void
     {
-        // Si tu stockes des données sensibles temporairement, efface-les ici.
+        // clear sensitive data if needed
     }
-
-    public static function createFromPayload($email, array $payload): self
-    {
-        $user = new self();
-        $user->email = $email;
-        // Hydrate aussi le username si présent dans le payload
-        if (isset($payload['username'])) {
-            $user->username = $payload['username'];
-        }
-        return $user;
-    }
-
-    public function addOwnedRoom(Room $room): self
-{
-    if (!$this->ownedRooms->contains($room)) {
-        $this->ownedRooms[] = $room;
-        $room->setOwner($this); // lie la relation inverse
-    }
-
-    return $this;
-}
-
-public function removeOwnedRoom(Room $room): self
-{
-    if ($this->ownedRooms->removeElement($room)) {
-        if ($room->getOwner() === $this) {
-            $room->setOwner(null);
-        }
-    }
-
-    return $this;
-}
 }
