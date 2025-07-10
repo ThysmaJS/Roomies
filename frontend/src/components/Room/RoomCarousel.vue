@@ -37,7 +37,8 @@ const rooms = ref([])
 
 onMounted(async () => {
   try {
-    rooms.value = await fetchRooms()
+    const token = localStorage.getItem('jwt_token') || ''
+    rooms.value = await fetchRooms(token)
   } catch (e) {
     console.error(e)
   }

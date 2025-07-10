@@ -1,8 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
-export async function fetchRooms() {
+export async function fetchRooms(token?: string) {
   const res = await fetch(`${API_URL}/rooms`, {
-    headers: { Accept: 'application/ld+json' },
+    headers: {
+      Accept: 'application/ld+json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   })
   const data = await res.json()
   return data['hydra:member'] || data.member || []
@@ -22,7 +25,7 @@ export async function createRoom(token: string, name: string, maxPlayers: number
 }
 
 export async function joinRoom(roomId: number, token: string) {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/room_users`, {
+  const response = await fetch(`${API_URL}/room_users`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/ld+json',
@@ -56,4 +59,18 @@ export async function deleteRoom(roomId: number, token: string) {
     },
   })
   return res.ok
+}
+
+export async function toggleReady(roomUserId: number, isReady: boolean, token: string) {
+  const res = await fetch(`${API_URL}/room_users/${roomUserId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/merge-patch+json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ isReady }),
+  })
+
+  const data = await res.json()
+  return { ok: res.ok, data }
 }
