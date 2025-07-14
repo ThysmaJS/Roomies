@@ -20,6 +20,8 @@ class RoomRepository extends ServiceEntityRepository
             ->addSelect('ru')
             ->leftJoin('ru.user', 'u')
             ->addSelect('u')
+            ->leftJoin('r.owner', 'owner')      // 👈 ajoute ceci
+            ->addSelect('owner')               // 👈 et ceci
             ->getQuery()
             ->getResult();
     }
@@ -33,6 +35,8 @@ class RoomRepository extends ServiceEntityRepository
             ->addSelect('ru')
             ->leftJoin('ru.user', 'u')
             ->addSelect('u')
+            ->leftJoin('r.owner', 'owner')     // 👈 idem ici
+            ->addSelect('owner')
             ->getQuery()
             ->getResult();
     }

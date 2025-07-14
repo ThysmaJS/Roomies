@@ -47,32 +47,34 @@
     </div>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
-  import axios from 'axios'
-  import { useRouter } from 'vue-router'
-  import { useAuthStore } from '@/stores/auth'
-  
-  const router = useRouter()
-  const form = ref({ username: '', password: '' })
-  const loading = ref(false)
-  const error = ref('')
-  
-  const auth = useAuthStore()
-  
-  const handleLogin = async () => {
-    loading.value = true
-    error.value = ''
-  
-    try {
-      const { data } = await axios.post('/api/login', form.value)
-      auth.login(data.token) // 🔐 met à jour le store + localStorage
-      router.push('/')
-    } catch (err) {
-      error.value = 'Email ou mot de passe invalide.'
-    } finally {
-      loading.value = false
-    }
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const form = ref({ username: '', password: '' })
+const loading = ref(false)
+const error = ref('')
+
+const auth = useAuthStore()
+
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const { data } = await axios.post('/api/login', form.value)
+    auth.login(data.token, data.user.id) // ✅ corriger ici
+    router.push('/')
+  } catch (err) {
+    console.error('Erreur login :', err)
+    error.value = 'Email ou mot de passe invalide.'
+  } finally {
+    loading.value = false
   }
-  </script>
+}
+</script>
+
   

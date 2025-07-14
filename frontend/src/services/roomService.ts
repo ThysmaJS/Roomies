@@ -29,21 +29,17 @@ export async function createRoom(token: string, name: string, maxPlayers: number
 }
 
 // 🔹 POST /room_users
-export async function joinRoom(roomApiPath: string, token: string) {
-  const response = await fetch(`${API_URL}/room_users`, {
+export async function joinRoom(roomId: number, token: string) {
+  const res = await fetch(`${API_URL}/rooms/${roomId}/join`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json', // pas JSON-LD ici
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      room: roomApiPath, // ex: "/api/rooms/3"
-    }),
   })
 
-  const data = await response.json()
-  return { ok: response.ok, data }
+  return { ok: res.ok, data: await res.json() }
 }
+
 
 // 🔹 GET /my/rooms
 export async function fetchMyRooms(token: string) {
