@@ -1,10 +1,10 @@
 <?php
 
-// src/Entity/RoomUser.php
 namespace App\Entity;
 
 use App\Repository\RoomUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RoomUserRepository::class)]
 class RoomUser
@@ -12,6 +12,7 @@ class RoomUser
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['room:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Room::class)]
@@ -20,15 +21,18 @@ class RoomUser
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['room:read'])]
     private ?User $user = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['room:read'])]
     private \DateTimeInterface $joinedAt;
 
-    public function __construct()
-    {
-        $this->joinedAt = new \DateTime();
-    }
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['room:read'])]
+    private bool $isReady = false;
+
+    public function __construct() { $this->joinedAt = new \DateTime(); }
 
     public function getId(): ?int { return $this->id; }
 
@@ -40,4 +44,7 @@ class RoomUser
 
     public function getJoinedAt(): \DateTimeInterface { return $this->joinedAt; }
     public function setJoinedAt(\DateTimeInterface $joinedAt): void { $this->joinedAt = $joinedAt; }
+
+    public function isReady(): bool { return $this->isReady; }
+    public function setIsReady(bool $isReady): void { $this->isReady = $isReady; }
 }

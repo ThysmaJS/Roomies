@@ -34,7 +34,7 @@
       return
     }
   
-    const result = await joinRoom(props.room.id, token)
+const result = await joinRoom(`/api/rooms/${props.room.id}`, token)
     if (result.ok) {
       emit('close') // ferme la modal
       router.push(`/room/${props.room.id}`)

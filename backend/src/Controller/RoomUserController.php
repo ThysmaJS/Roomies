@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\RoomUser;
 use App\Repository\RoomRepository;
+use App\Repository\RoomUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,6 +44,38 @@ class RoomUserController extends AbstractController
         $em->persist($roomUser);
         $em->flush();
 
-        return $this->json(['message' => 'Joined room']);
+        return $this->json([
+            'message' => 'Joined room',
+            'roomUserId' => $roomUser->getId(),
+        ]);
+    }
+
+    #[Route('/{id}', name: 'room_user_toggle_ready', methods: ['PATCH'])]
+    public function toggleReady(Request $request, RoomUserRepository $repo, EntityManagerInterface $em, int $id): JsonResponse
+    {
+        $roomUser = $repo->find($id);
+
+        if (!$roomUser) {
+            return $this->json(['error' => 'RoomUser not found'], 404);
+        }
+
+        if ($roomUser->getUser() !== $this->getUser()) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['isReady'])) {
+            return $this->json(['error' => 'Missing isReady value'], 400);
+        }
+
+        $roomUser->setIsReady((bool) $data['isReady']);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Status updated',
+            'roomUserId' => $roomUser->getId(),
+            'isReady' => $roomUser->isReady(),
+        ]);
     }
 }

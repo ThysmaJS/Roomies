@@ -4,7 +4,7 @@ export async function toggleReady(roomUserId: number, isReady: boolean, token: s
   const res = await fetch(`${API_URL}/room_users/${roomUserId}`, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/merge-patch+json',
+      'Content-Type': 'application/json', // ✅ standard JSON, pas "merge-patch"
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ isReady }),

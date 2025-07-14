@@ -21,7 +21,7 @@ security:
             provider: app_user_provider   # 👈 AJOUTE CECI
             json_login:
                 check_path: /api/login
-                username_path: email
+                username_path: username
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure

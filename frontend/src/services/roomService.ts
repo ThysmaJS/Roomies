@@ -1,38 +1,43 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
+// 🔹 GET /rooms
 export async function fetchRooms(token?: string) {
   const res = await fetch(`${API_URL}/rooms`, {
     headers: {
-      Accept: 'application/ld+json',
+      Accept: 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   })
+
   const data = await res.json()
-  return data['hydra:member'] || data.member || []
+  return Array.isArray(data) ? data : []
 }
 
+// 🔹 POST /rooms
 export async function createRoom(token: string, name: string, maxPlayers: number) {
   const res = await fetch(`${API_URL}/rooms`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/ld+json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ name, maxPlayers }),
   })
+
   const data = await res.json()
   return { ok: res.ok, data }
 }
 
-export async function joinRoom(roomId: number, token: string) {
+// 🔹 POST /room_users
+export async function joinRoom(roomApiPath: string, token: string) {
   const response = await fetch(`${API_URL}/room_users`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/ld+json',
+      'Content-Type': 'application/json', // pas JSON-LD ici
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      room: `/api/rooms/${roomId}`,
+      room: roomApiPath, // ex: "/api/rooms/3"
     }),
   })
 
@@ -40,17 +45,20 @@ export async function joinRoom(roomId: number, token: string) {
   return { ok: response.ok, data }
 }
 
+// 🔹 GET /my/rooms
 export async function fetchMyRooms(token: string) {
-  const res = await fetch(`${API_URL}/my/rooms`, {
+  const res = await fetch(`${API_URL}/rooms/my/rooms`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: 'application/ld+json',
+      Accept: 'application/json',
     },
   })
+
   const data = await res.json()
-  return data['hydra:member'] || data
+  return Array.isArray(data) ? data : []
 }
 
+// 🔹 DELETE /rooms/{id}
 export async function deleteRoom(roomId: number, token: string) {
   const res = await fetch(`${API_URL}/rooms/${roomId}`, {
     method: 'DELETE',
@@ -58,14 +66,16 @@ export async function deleteRoom(roomId: number, token: string) {
       Authorization: `Bearer ${token}`,
     },
   })
+
   return res.ok
 }
 
+// 🔹 PATCH /room_users/{id}
 export async function toggleReady(roomUserId: number, isReady: boolean, token: string) {
   const res = await fetch(`${API_URL}/room_users/${roomUserId}`, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/merge-patch+json',
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ isReady }),
