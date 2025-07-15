@@ -33,7 +33,7 @@ import { onMounted, ref } from 'vue'
 import { fetchRooms } from '@/services/roomService'
 import RoomCard from './RoomCard.vue'
 
-const rooms = ref([])
+const rooms = ref<any[]>([])
 
 onMounted(async () => {
   try {
