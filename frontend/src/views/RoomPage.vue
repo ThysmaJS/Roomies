@@ -50,15 +50,18 @@ const route = useRoute()
 const rawParam = route.params.id
 const roomId = Array.isArray(rawParam) ? rawParam[0] : rawParam
 const room = ref<any>(null)
-
-const token = localStorage.getItem('jwt_token') || ''
+const token = localStorage.getItem('jwt_token')
 const currentUserEmail = token ? jwtDecode<any>(token).username : ''
 
 let interval: number | undefined
 
 async function loadRoom() {
   try {
-    const res = await axios.get(`/api/rooms/${roomId}`)
+    const res = await axios.get(`/api/rooms/${roomId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
     // 🔁 Clonage profond pour forcer la réactivité
     room.value = cloneDeep(res.data)
   } catch (err) {

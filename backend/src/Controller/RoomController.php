@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Controller;
 
@@ -14,12 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/rooms')]
 class RoomController extends AbstractController
 {
-#[Route('', name: 'room_list', methods: ['GET'])]
-public function list(RoomRepository $repo): JsonResponse
-{
-    $rooms = $repo->findAllWithUsers(); // 🔥 nouvelle méthode avec jointure
-    return $this->json($rooms, 200, [], ['groups' => 'room:read']);
-}
+    #[Route('', name: 'room_list', methods: ['GET'])]
+    public function list(RoomRepository $repo): JsonResponse
+    {
+        $rooms = $repo->findAllWithUsers(); // 🔥 nouvelle méthode avec jointure
+        return $this->json($rooms, 200, [], ['groups' => 'room:read']);
+    }
 
     #[Route('', name: 'room_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
@@ -39,11 +39,24 @@ public function list(RoomRepository $repo): JsonResponse
         $roomUser->setIsReady(false); // par défaut
         $room->addRoomUser($roomUser);
 
-        $em->persist($room);       // persist aussi RoomUser via cascade
-        $em->persist($roomUser);   // facultatif si cascade bien configuré
+        $em->persist($room);
+        $em->persist($roomUser); // facultatif si cascade
         $em->flush();
 
         return $this->json($room, 201, [], ['groups' => 'room:read']);
+    }
+
+    #[Route('/my/rooms', name: 'my_rooms', methods: ['GET'])]
+    public function myRooms(RoomRepository $repo): JsonResponse
+    {
+        $rooms = $repo->findByOwner($this->getUser());
+        return $this->json($rooms, 200, [], ['groups' => 'room:read']);
+    }
+
+    #[Route('/{id}', name: 'room_get', methods: ['GET'])]
+    public function get(Room $room): JsonResponse
+    {
+        return $this->json($room, 200, [], ['groups' => 'room:read']);
     }
 
     #[Route('/{id}', name: 'room_delete', methods: ['DELETE'])]
@@ -58,11 +71,4 @@ public function list(RoomRepository $repo): JsonResponse
 
         return $this->json(null, 204);
     }
-
-#[Route('/my/rooms', name: 'my_rooms', methods: ['GET'])]
-public function myRooms(RoomRepository $repo): JsonResponse
-{
-    $rooms = $repo->findByOwner($this->getUser()); // 🔥 avec join ici aussi
-    return $this->json($rooms, 200, [], ['groups' => 'room:read']);
-}
 }
