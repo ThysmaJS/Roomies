@@ -21,12 +21,17 @@
         </li>
       </ul>
     </div>
+
+    <!-- Actions créateur -->
+    <div v-if="showActions" class="mt-4 flex gap-2">
+      <button @click.stop="$emit('edit')" class="bg-yellow-400 px-2 py-1 rounded font-bold text-white hover:bg-yellow-500">Modifier</button>
+      <button @click.stop="$emit('delete')" class="bg-red-600 px-2 py-1 rounded font-bold text-white hover:bg-red-700">Supprimer</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ room: any }>()
-
+defineProps<{ room: any, showActions?: boolean }>()
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString()
 }

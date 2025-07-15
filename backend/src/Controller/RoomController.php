@@ -71,4 +71,48 @@ class RoomController extends AbstractController
 
         return $this->json(null, 204);
     }
+
+    #[Route('/my/joined', name: 'joined_rooms', methods: ['GET'])]
+public function joinedRooms(EntityManagerInterface $em): JsonResponse
+{
+    $user = $this->getUser();
+
+    // On récupère toutes les RoomUser où $user participe
+    $qb = $em->createQueryBuilder();
+    $qb->select('r')
+        ->from(Room::class, 'r')
+        ->join('r.roomUsers', 'ru')
+        ->where('ru.user = :user')
+        ->setParameter('user', $user);
+
+    // On ne veut PAS les rooms dont il est owner (pour la séparation)
+    $qb->andWhere('r.owner != :userOwner')->setParameter('userOwner', $user);
+
+    $rooms = $qb->getQuery()->getResult();
+
+    return $this->json($rooms, 200, [], ['groups' => 'room:read']);
+}
+
+#[Route('/{id}', name: 'room_update', methods: ['PATCH'])]
+public function update(Request $request, Room $room, EntityManagerInterface $em): JsonResponse
+{
+    $user = $this->getUser();
+    if ($room->getOwner() !== $user) {
+        return $this->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $data = json_decode($request->getContent(), true);
+    if (isset($data['name'])) {
+        $room->setName($data['name']);
+    }
+    if (isset($data['maxPlayers'])) {
+        $room->setMaxPlayers($data['maxPlayers']);
+    }
+
+    $em->flush();
+
+    return $this->json($room, 200, [], ['groups' => 'room:read']);
+}
+
+
 }

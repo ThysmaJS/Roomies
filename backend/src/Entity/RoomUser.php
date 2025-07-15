@@ -15,7 +15,7 @@ class RoomUser
     #[Groups(['room:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Room::class)]
+    #[ORM\ManyToOne(targetEntity: Room::class, inversedBy: "roomUsers")]
     #[ORM\JoinColumn(nullable: false)]
     private ?Room $room = null;
 

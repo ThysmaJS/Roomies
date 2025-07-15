@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Room;
 use App\Entity\RoomUser;
 use App\Repository\RoomRepository;
 use App\Repository\RoomUserRepository;
@@ -128,4 +129,25 @@ class RoomUserController extends AbstractController
         $em->flush();
         return $this->json(['message' => 'Updated', 'isReady' => $roomUser->isReady()]);
     }
+
+        #[Route('/my/joined', name: 'joined_rooms', methods: ['GET'])]
+public function joinedRooms(EntityManagerInterface $em): JsonResponse
+{
+    $user = $this->getUser();
+
+    // On récupère toutes les RoomUser où $user participe
+    $qb = $em->createQueryBuilder();
+    $qb->select('r')
+        ->from(Room::class, 'r')
+        ->join('r.roomUsers', 'ru')
+        ->where('ru.user = :user')
+        ->setParameter('user', $user);
+
+    // On ne veut PAS les rooms dont il est owner (pour la séparation)
+    $qb->andWhere('r.owner != :userOwner')->setParameter('userOwner', $user);
+
+    $rooms = $qb->getQuery()->getResult();
+
+    return $this->json($rooms, 200, [], ['groups' => 'room:read']);
+}
 }

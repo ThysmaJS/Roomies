@@ -41,14 +41,12 @@ class Room
     #[Groups(['room:read'])]
     private ?string $currentGame = null;
 
-
     public function __construct()
     {
         $this->roomUsers = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
-
     public function getName(): string { return $this->name; }
     public function setName(string $name): void { $this->name = $name; }
 
