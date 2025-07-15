@@ -19,7 +19,6 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['updated'])
-
 const isReady = ref(props.initialReady)
 const loading = ref(false)
 const token = localStorage.getItem('jwt_token') || ''
@@ -30,7 +29,6 @@ const toggle = async () => {
   const result = await toggleReady(props.roomUserId, !isReady.value, token)
   if (result.ok) {
     isReady.value = !isReady.value
-    // ➕ Pause courte pour laisser le backend mettre à jour les données
     setTimeout(() => emit('updated'), 300)
   } else {
     alert('❌ Erreur lors du changement de statut')

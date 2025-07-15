@@ -37,6 +37,11 @@ class Room
     #[Groups(['room:read'])]
     private Collection $roomUsers;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['room:read'])]
+    private ?string $currentGame = null;
+
+
     public function __construct()
     {
         $this->roomUsers = new ArrayCollection();
@@ -55,4 +60,7 @@ class Room
 
     public function getRoomUsers(): Collection { return $this->roomUsers; }
     public function addRoomUser(RoomUser $roomUser): void { $this->roomUsers->add($roomUser); }
+
+    public function getCurrentGame(): ?string { return $this->currentGame; }
+    public function setCurrentGame(?string $game): void { $this->currentGame = $game; }
 }

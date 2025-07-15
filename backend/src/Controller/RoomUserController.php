@@ -14,7 +14,6 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api')]
 class RoomUserController extends AbstractController
 {
-    // 1. Rejoindre une room avec champ `room` dans le body
     #[Route('/room_users', name: 'room_user_join', methods: ['POST'])]
     public function join(Request $request, RoomRepository $roomRepo, EntityManagerInterface $em): JsonResponse
     {
@@ -24,7 +23,6 @@ class RoomUserController extends AbstractController
             return $this->json(['error' => 'Missing room'], 400);
         }
 
-        // Ex: /api/rooms/3 → extract 3
         preg_match('#/api/rooms/(\d+)#', $data['room'], $matches);
         $roomId = $matches[1] ?? null;
 
@@ -60,7 +58,6 @@ class RoomUserController extends AbstractController
         ]);
     }
 
-    // 2. Rejoindre une room via son id directement (ex: POST /api/rooms/5/join)
     #[Route('/rooms/{id}/join', name: 'api_room_join', methods: ['POST'])]
     public function joinRoomById(
         int $id,
@@ -99,33 +96,36 @@ class RoomUserController extends AbstractController
         ]);
     }
 
-    // 3. Modifier l’état "prêt" d’un utilisateur dans une room
-    #[Route('/room_users/{id}', name: 'room_user_toggle_ready', methods: ['PATCH'])]
+    #[Route('/room_users/{id}/ready', name: 'room_user_toggle_ready', methods: ['PATCH'])]
     public function toggleReady(Request $request, RoomUserRepository $repo, EntityManagerInterface $em, int $id): JsonResponse
     {
         $roomUser = $repo->find($id);
-
-        if (!$roomUser) {
-            return $this->json(['error' => 'RoomUser not found'], 404);
-        }
-
-        if ($roomUser->getUser() !== $this->getUser()) {
-            return $this->json(['error' => 'Unauthorized'], 403);
-        }
+        if (!$roomUser) return $this->json(['error' => 'RoomUser not found'], 404);
+        if ($roomUser->getUser() !== $this->getUser()) return $this->json(['error' => 'Unauthorized'], 403);
 
         $data = json_decode($request->getContent(), true);
+        if (!isset($data['isReady'])) return $this->json(['error' => 'Missing isReady'], 400);
 
-        if (!isset($data['isReady'])) {
-            return $this->json(['error' => 'Missing isReady value'], 400);
+        $roomUser->setIsReady((bool)$data['isReady']);
+
+        $room = $roomUser->getRoom();
+        $allReady = true;
+        if (count($room->getRoomUsers()) >= 2) {
+            foreach ($room->getRoomUsers() as $ru) {
+                if (!$ru->isReady()) {
+                    $allReady = false;
+                    break;
+                }
+            }
+        } else {
+            $allReady = false;
         }
 
-        $roomUser->setIsReady((bool) $data['isReady']);
-        $em->flush();
+        if ($allReady && !$room->getCurrentGame()) {
+            $room->setCurrentGame('morpion');
+        }
 
-        return $this->json([
-            'message' => 'Status updated',
-            'roomUserId' => $roomUser->getId(),
-            'isReady' => $roomUser->isReady(),
-        ]);
+        $em->flush();
+        return $this->json(['message' => 'Updated', 'isReady' => $roomUser->isReady()]);
     }
 }
