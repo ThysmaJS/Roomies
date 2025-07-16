@@ -23,13 +23,22 @@
         {{ cell }}
       </div>
     </div>
-    <button v-if="winner" @click="reset" class="mt-4 px-4 py-1 rounded bg-blue-600 text-white font-bold">Rejouer</button>
+    <!-- ✅ Plus de bouton Rejouer. Affiche le bouton Quitter à la fin -->
+    <button
+      v-if="winner"
+      @click="quitRoom"
+      class="mt-4 px-4 py-1 rounded bg-red-600 text-white font-bold"
+    >
+      Quitter la room
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { jwtDecode } from 'jwt-decode'
+import { useRouter } from 'vue-router'
+import { deleteRoom } from '@/services/roomService'
 
 const props = defineProps<{ roomId: string }>()
 
@@ -42,6 +51,7 @@ let socket: WebSocket | null = null
 
 const token = localStorage.getItem('jwt_token') || ''
 const username = token ? jwtDecode<any>(token).username : 'Invité'
+const router = useRouter()
 
 onMounted(() => {
   socket = new WebSocket('ws://localhost:3001')
@@ -88,8 +98,14 @@ const winnerMessage = computed(() =>
   winner.value ? `🎉 ${winner.value} a gagné !` : ''
 )
 
-function reset() {
-  // Simple "reset": reconnecte au WS (reset serveur auto après tout le monde part)
-  window.location.reload()
+// Quitter la room (et la supprimer si owner)
+async function quitRoom() {
+  try {
+    socket?.close()
+    await deleteRoom(Number(props.roomId), token)
+    router.push('/rooms')
+  } catch (err) {
+    alert('Erreur lors de la suppression de la room')
+  }
 }
 </script>
