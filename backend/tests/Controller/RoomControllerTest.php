@@ -4,31 +4,39 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RoomControllerTest extends WebTestCase
 {
     private function createAuthenticatedClient(): object
     {
         $client = static::createClient();
-        $container = static::getContainer();
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
 
         // Créer ou récupérer un user test existant
-        $userRepo = $container->get('doctrine')->getRepository(User::class);
+        $userRepo = $em->getRepository(User::class);
         $user = $userRepo->findOneBy(['username' => 'testuser']);
+
         if (!$user) {
-            // Crée un user si besoin (simplifié : adapte selon ton projet)
             $user = new User();
             $user->setEmail('test@example.com');
             $user->setUsername('testuser');
-            $user->setPassword(password_hash('testpass', PASSWORD_BCRYPT));
-            $em = $container->get('doctrine')->getManager();
+
+            // Utilise le PasswordHasher Symfony (meilleure pratique !)
+            $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+            $hashedPassword = $hasher->hashPassword($user, 'testpass');
+            $user->setPassword($hashedPassword);
+
             $em->persist($user);
             $em->flush();
         }
 
         // Génère le JWT pour ce user
-        $jwtManager = $container->get(JWTTokenManagerInterface::class);
+        $jwtManager = self::getContainer()->get(JWTTokenManagerInterface::class);
         $token = $jwtManager->create($user);
 
         // Ajoute le header Authorization
@@ -36,7 +44,7 @@ class RoomControllerTest extends WebTestCase
         return $client;
     }
 
-    public function testListRooms()
+    public function testListRooms(): void
     {
         $client = $this->createAuthenticatedClient();
         $client->request('GET', '/api/rooms');
