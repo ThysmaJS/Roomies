@@ -23,7 +23,6 @@
         {{ cell }}
       </div>
     </div>
-    <!-- ✅ Plus de bouton Rejouer. Affiche le bouton Quitter à la fin -->
     <button
       v-if="winner"
       @click="quitRoom"

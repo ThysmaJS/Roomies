@@ -68,7 +68,7 @@ const roomId = Array.isArray(rawParam) ? rawParam[0] : rawParam
 // Token et utilisateur
 const token = localStorage.getItem('jwt_token') || ''
 const decoded = token ? jwtDecode<any>(token) : {}
-const currentUsername = decoded.username || '' // 🟩 Utilisation du username
+const currentUsername = decoded.username || '' 
 
 // Room et refresh interval
 const room = ref<any>(null)

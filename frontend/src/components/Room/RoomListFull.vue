@@ -43,7 +43,7 @@ interface Room {
   createdAt?: string
   owner?: User
   roomUsers: RoomUser[]
-  currentGame?: string // ← ajoute cette ligne
+  currentGame?: string 
 }
 
 // States

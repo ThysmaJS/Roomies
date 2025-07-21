@@ -66,11 +66,10 @@ const handleLogin = async () => {
 
   try {
     const { data } = await axios.post('/api/login', form.value)
-    auth.login(data.token, data.user.id) // ✅ corriger ici
+    auth.login(data.token, data.user.id)
     router.push('/')
   } catch (err) {
     console.error('Erreur login :', err)
-    error.value = 'Email ou mot de passe invalide.'
   } finally {
     loading.value = false
   }

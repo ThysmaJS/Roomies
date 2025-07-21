@@ -19,12 +19,12 @@ class RoomControllerTest extends WebTestCase
 
         // Créer ou récupérer un user test existant
         $userRepo = $em->getRepository(User::class);
-        $user = $userRepo->findOneBy(['username' => 'testuser']);
+        $user = $userRepo->findOneBy(['username' => 'demo_user']);
 
         if (!$user) {
             $user = new User();
-            $user->setEmail('test@example.com');
-            $user->setUsername('testuser');
+            $user->setEmail('demo@example.com');
+            $user->setUsername('demo_user');
 
             // Utilise le PasswordHasher Symfony (meilleure pratique !)
             $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);

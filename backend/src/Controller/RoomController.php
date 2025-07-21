@@ -17,7 +17,7 @@ class RoomController extends AbstractController
     #[Route('', name: 'room_list', methods: ['GET'])]
     public function list(RoomRepository $repo): JsonResponse
     {
-        $rooms = $repo->findAllWithUsers(); // 🔥 nouvelle méthode avec jointure
+        $rooms = $repo->findAllWithUsers();
         return $this->json($rooms, 200, [], ['groups' => 'room:read']);
     }
 
@@ -85,7 +85,6 @@ public function joinedRooms(EntityManagerInterface $em): JsonResponse
         ->where('ru.user = :user')
         ->setParameter('user', $user);
 
-    // On ne veut PAS les rooms dont il est owner (pour la séparation)
     $qb->andWhere('r.owner != :userOwner')->setParameter('userOwner', $user);
 
     $rooms = $qb->getQuery()->getResult();
