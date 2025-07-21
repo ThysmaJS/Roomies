@@ -42,8 +42,7 @@ backend/.env.dev.local
 backend/.env.test.local
 backend/.env.prod.local
 
-# Doctrine migrations (optionnel si tu veux versionner tes migrations)
-backend/migrations/
+
 
 # --- WEBSOCKET (Node.js serveur) ---
 websocket/node_modules/

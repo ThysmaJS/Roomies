@@ -7,11 +7,11 @@
   
         <form @submit.prevent="handleLogin" class="space-y-5 text-sm text-blue-900 font-medium">
           <div>
-            <label for="email" class="block mb-1">Adresse e-mail :</label>
+            <label for="username" class="block mb-1">Nom d'utilisateur :</label>
             <input
-              id="email"
-              type="email"
-              v-model="form.email"
+              id="username"
+              type="text"
+              v-model="form.username"
               required
               class="w-full px-3 py-2 border border-blue-300 rounded bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
@@ -47,32 +47,33 @@
     </div>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
-  import axios from 'axios'
-  import { useRouter } from 'vue-router'
-  import { useAuthStore } from '@/stores/auth'
-  
-  const router = useRouter()
-  const form = ref({ email: '', password: '' })
-  const loading = ref(false)
-  const error = ref('')
-  
-  const auth = useAuthStore()
-  
-  const handleLogin = async () => {
-    loading.value = true
-    error.value = ''
-  
-    try {
-      const { data } = await axios.post('/api/login', form.value)
-      auth.login(data.token) // 🔐 met à jour le store + localStorage
-      router.push('/')
-    } catch (err) {
-      error.value = 'Email ou mot de passe invalide.'
-    } finally {
-      loading.value = false
-    }
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const form = ref({ username: '', password: '' })
+const loading = ref(false)
+const error = ref('')
+
+const auth = useAuthStore()
+
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const { data } = await axios.post('/api/login', form.value)
+    auth.login(data.token, data.user.id)
+    router.push('/')
+  } catch (err) {
+    console.error('Erreur login :', err)
+  } finally {
+    loading.value = false
   }
-  </script>
+}
+</script>
+
   

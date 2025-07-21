@@ -33,11 +33,12 @@ import { onMounted, ref } from 'vue'
 import { fetchRooms } from '@/services/roomService'
 import RoomCard from './RoomCard.vue'
 
-const rooms = ref([])
+const rooms = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    rooms.value = await fetchRooms()
+    const token = localStorage.getItem('jwt_token') || ''
+    rooms.value = await fetchRooms(token)
   } catch (e) {
     console.error(e)
   }
